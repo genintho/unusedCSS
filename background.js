@@ -1,29 +1,14 @@
-var domain = false;
-var mapSelector = {};
 
-var urlDl = [];
+var g_ActiveDomain = false;
+var g_MapSelector = {};
+var g_StyleSheetURLs = [];
 
-function getStylesheet( cb ){
-    console.log( 'get style' );
-    chrome.tabs.executeScript(null, { file: "getStyleSheet.js" }, cb);
-}
-
-function setDomain( dom ){
-    console.log( 'set domain', dom );
-    domain = dom;
-    getStylesheet( test );
-}
-
-function test(){
-    console.log( 'test' );
-    chrome.tabs.executeScript(null, { file: "test.js" },function(){});
-}
 
 chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
     console.log( 'tab update' );
-    if( domain !== false && changeInfo.url ){
-        if( changeInfo.url.indexOf( domain ) !== -1 ){
-            getStylesheet( test );
+    if( g_ActiveDomain !== false && changeInfo.url ){
+        if( changeInfo.url.indexOf( g_ActiveDomain ) !== -1 ){
+            getStylesheetFromPage( runTest );
         }
     }
 });
@@ -36,8 +21,8 @@ chrome.extension.onMessage.addListener(
                 break;
             case 'getUnusedSelector':
                 var unused = [];
-                for( var i in mapSelector ){
-                    if( !mapSelector[i] ){
+                for( var i in g_MapSelector ){
+                    if( !g_MapSelector[i] ){
                         unused.push( i );
                     }
                 }
@@ -45,11 +30,11 @@ chrome.extension.onMessage.addListener(
                 break;
             case 'updateUSage':
                 request.data.forEach(function( selector ){
-                    mapSelector[selector] = true;
+                    g_MapSelector[selector] = true;
                 });
                 break;
-            case 'test':
-                test();
+            case 'runTest':
+                runTest();
                 break;
 
             case 'setDomain':
@@ -57,15 +42,35 @@ chrome.extension.onMessage.addListener(
                 break;
 
             case 'getResults':
-                sendResponse( calcPercentUsage() );
+                sendResponse( getStatistic() );
                 break;
         }
 });
 
-function calcPercentUsage(){
-    var nb = 0, used=0;
-    for( var i in mapSelector ){
-        if( mapSelector[i] ){
+
+function getStylesheetFromPage( cb ){
+    console.log( 'get style' );
+    chrome.tabs.executeScript(null, { file: "getStyleSheet.js" }, cb);
+}
+
+function setDomain( dom ){
+    console.log( 'set domain', dom );
+    g_ActiveDomain = dom;
+    getStylesheetFromPage( runTest );
+}
+
+function runTest(){
+    console.log( 'runTest' );
+    chrome.tabs.executeScript(null, { file: "runTest.js" },function(){});
+}
+
+
+function getStatistic(){
+    var nb = 0,
+        used=0;
+
+    for( var selector in g_MapSelector ){
+        if( g_MapSelector[selector] ){
             used++;
         }
         nb++;
@@ -86,13 +91,13 @@ function downloadStylesheet( urls ){
         }
     }
     urls.forEach( function( url ){
-        if( urlDl.indexOf(url) !== -1 ){
+        if( g_StyleSheetURLs.indexOf(url) !== -1 ){
             return;
         }
         console.log( 'dl style ', url);
         ajax.open( 'GET', url, false);
         ajax.send( null );
-        urlDl.push( url );
+        g_StyleSheetURLs.push( url );
     });
 }
 
@@ -101,8 +106,8 @@ function postProcessStyleSheet( text ){
     var selectors = extractSelector( text );
     console.log( 'Found '+selectors.length + 'selectors ');
     selectors.forEach( function( selector ) {
-        if( typeof mapSelector[selector] == 'undefined' ){
-            mapSelector[selector] = false;
+        if( typeof g_MapSelector[selector] == 'undefined' ){
+            g_MapSelector[selector] = false;
         }
     });
 }

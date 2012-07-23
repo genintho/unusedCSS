@@ -11,20 +11,20 @@ chrome.tabs.getSelected(null,function(tab) {
     if( minusProto.indexOf('#') !== -1 ){
         minusProto = minusProto.substr( 0, minusProto.indexOf('#') );
     }
-    document.getElementById('domain' ).value = protocol + '://' + minusProto ;
+    document.getElementById('g_ActiveDomain' ).value = protocol + '://' + minusProto ;
 });
 
 
 document.getElementById('setDomain' ).addEventListener('click', function(){
     chrome.extension.sendMessage({
         cmd: "setDomain",
-        domain: document.getElementById('domain' ).value
+        domain: document.getElementById('g_ActiveDomain' ).value
     });
 });
 
-document.getElementById('test' ).addEventListener( 'click', function(){
+document.getElementById('runTest' ).addEventListener( 'click', function(){
     chrome.extension.sendMessage({
-        cmd: "test"
+        cmd: "runTest"
     });
 });
 
