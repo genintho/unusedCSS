@@ -1,42 +1,14 @@
 {
-    // Required
-    "name": "xtCss",
-    "version": "0.1",
+    "name": "xtUnusedCSS",
+    "version": "0.2",
     "manifest_version": 2,
-    // Recommended
-    "description": "A CSS selector analyzor",
-//    "default_locale": "en",
-    // Pick one (or none)
+    "description": "Find unused CSS Selector from your Web site/Web application",
     "browser_action": {
-//        "default_icon": "jquery_icon.png",
         "default_popup": "popup.html",
         "default_title": "just click to inject jquery 1.7"
-
     },
-//    "theme": {...},
-//    "app": {...},
-    // Add any of these that you need
     "background": {
         "scripts": ["background.js"]
     },
-    "devtools_page": "devtools.html",
-
-//    "chrome_url_overrides": {...},
-//    "content_scripts": [...],
-//    "content_security_policy": "policyString",
-//    "file_browser_handlers": [...],
-//    "homepage_url": "http://path/to/homepage",
-//    "incognito": "spanning" or "split",
-//    "intents": {...}
-//    "key": "publicKey",
-//    "minimum_chrome_version": "versionString",
-//    "nacl_modules": [...],
-//    "offline_enabled": true,
-//    "omnibox": { "keyword": "aString" },
-//    "options_page": "aFile.html",
-
     "permissions": [ "tabs", "https://*/*", "http://*/*" ]
-
-//    "requirements": {...},
-//    "web_accessible_resources": [...]
 }
