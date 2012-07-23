@@ -5,7 +5,6 @@ var g_StyleSheetURLs = [];
 
 
 chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
-    console.log( 'tab update' );
     if( g_ActiveDomain !== false && changeInfo.url ){
         if( changeInfo.url.indexOf( g_ActiveDomain ) !== -1 ){
             getStylesheetFromPage( runTest );
@@ -13,38 +12,41 @@ chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
     }
 });
 
-chrome.extension.onMessage.addListener(
-    function(request, sender, sendResponse) {
-        switch( request.cmd ){
-            case 'style':
-                downloadStylesheet( request.url );
-                break;
-            case 'getUnusedSelector':
-                var unused = [];
-                for( var i in g_MapSelector ){
-                    if( !g_MapSelector[i] ){
-                        unused.push( i );
-                    }
+
+chrome.extension.onMessage.addListener( function(request, sender, sendResponse) {
+    switch( request.cmd ){
+        case 'style':
+            downloadStylesheet( request.url );
+            break;
+
+        case 'getUnusedSelector':
+            var unused = [];
+            for( var i in g_MapSelector ){
+                if( !g_MapSelector[i] ){
+                    unused.push( i );
                 }
-                sendResponse( {data:unused} );
-                break;
-            case 'updateUSage':
-                request.data.forEach(function( selector ){
-                    g_MapSelector[selector] = true;
-                });
-                break;
-            case 'runTest':
-                runTest();
-                break;
+            }
+            sendResponse( {data:unused} );
+            break;
 
-            case 'setDomain':
-                setDomain( request.domain );
-                break;
+        case 'updateUSage':
+            request.data.forEach(function( selector ){
+                g_MapSelector[selector] = true;
+            });
+            break;
 
-            case 'getResults':
-                sendResponse( getStatistic() );
-                break;
-        }
+        case 'runTest':
+            runTest();
+            break;
+
+        case 'setDomain':
+            setDomain( request.domain );
+            break;
+
+        case 'getResults':
+            sendResponse( getStatistic() );
+            break;
+    }
 });
 
 
@@ -53,11 +55,12 @@ function getStylesheetFromPage( cb ){
     chrome.tabs.executeScript(null, { file: "getStyleSheet.js" }, cb);
 }
 
+
 function setDomain( dom ){
     console.log( 'set domain', dom );
     g_ActiveDomain = dom;
-    getStylesheetFromPage( runTest );
 }
+
 
 function runTest(){
     console.log( 'runTest' );
@@ -101,6 +104,7 @@ function downloadStylesheet( urls ){
     });
 }
 
+
 function postProcessStyleSheet( text ){
     console.log( 'process style ' );
     var selectors = extractSelector( text );
@@ -111,6 +115,7 @@ function postProcessStyleSheet( text ){
         }
     });
 }
+
 
 function extractSelector( text ){
     var a = text.length;
