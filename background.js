@@ -1,12 +1,52 @@
 
 var g_ActiveDomain = false;
-var g_MapSelector = {};
 var g_StyleSheetURLs = [];
+
+var g_MapSelector = {};
+
+var g_DomainSelector = (function(){
+    var map = {};
+
+    return {
+        processSelector: function( fileSrc, arrSelector ){
+            console.log( 'Found '+arrSelector.length + ' selectors ');
+            arrSelector.forEach( function( selector ) {
+                if( typeof map[selector] == 'undefined' ){
+                    map[selector] = new Selector( selector, fileSrc );
+                }
+                else{
+                    map[selector].addDuplicate( fileSrc );
+                }
+            });
+        },
+        reset: function(){
+            map = {};
+        },
+        getMap: function(){
+            return map;
+        },
+        getUnUsed: function(){
+            var unused = [];
+            for( var i in map ){
+                if( !map[i].isUsed ){
+                    unused.push( i );
+                }
+            }
+            return unused;
+        },
+        updateUsage: function( arrSelector ){
+            arrSelector.forEach(function( selector ){
+                map[selector].setUsed();
+            });
+        }
+    };
+
+})();
 
 
 chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
-    if( g_ActiveDomain !== false && changeInfo.url ){
-        if( changeInfo.url.indexOf( g_ActiveDomain ) !== -1 ){
+    if( g_ActiveDomain !== false && tab.url ){
+        if( tab.url.indexOf( g_ActiveDomain ) !== -1 ){
             getStylesheetFromPage( runTest );
         }
     }
@@ -21,19 +61,12 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse) 
             break;
 
         case 'getUnusedSelector':
-            var unused = [];
-            for( var i in g_MapSelector ){
-                if( !g_MapSelector[i] ){
-                    unused.push( i );
-                }
-            }
-            sendResponse( {data:unused} );
+            sendResponse({ data:g_DomainSelector.getUnUsed() });
+            break;
             break;
 
         case 'updateUsage':
-            request.data.forEach(function( selector ){
-                g_MapSelector[selector] = true;
-            });
+            g_DomainSelector.updateUsage( request.data );
             break;
 
         case 'runTest':
@@ -51,7 +84,7 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse) 
             break;
 
         case 'getStats':
-            sendResponse( g_MapSelector );
+            sendResponse( g_DomainSelector.getMap() );
             break;
     }
 });
@@ -66,7 +99,7 @@ function getStylesheetFromPage( cb ){
 function setDomain( dom ){
     console.log( 'set domain', dom );
     g_ActiveDomain = dom;
-    runTest();
+    chrome.tabs.reload();
 }
 
 
@@ -75,15 +108,24 @@ function runTest(){
     chrome.tabs.executeScript(null, { file: "test.js" },function(){});
 }
 
+
 function downloadStylesheet( urls ){
-    console.log( 'dl style');
-    var ajax = new XMLHttpRequest();
-    ajax.onreadystatechange = function(){
-        if( ajax.readyState == 4 && ajax.status == 200 ){
-            postProcessStyleSheet( ajax.responseText );
-        }
-    }
+    console.log( 'dl style', urls);
     urls.forEach( function( url ){
+        var ajax = new XMLHttpRequest();
+        ajax.onreadystatechange = function(){
+            if( ajax.readyState == 4 && ajax.status == 200 ){
+                postProcessStyleSheet( url, ajax.responseText );
+            }
+        }
+
+
+        // dont fetch that!
+        var dataURl = "data:text/css";
+        if( url.substr(0, dataURl.length) == dataURl ){
+            return;
+        }
+        // already fetched
         if( g_StyleSheetURLs.indexOf(url) !== -1 ){
             return;
         }
@@ -94,18 +136,11 @@ function downloadStylesheet( urls ){
     });
 }
 
-
-function postProcessStyleSheet( text ){
-    console.log( 'process style ' );
+function postProcessStyleSheet( fileSrc, text ){
+    console.log( 'process stylesheet' );
     var selectors = extractSelector( text );
-    console.log( 'Found '+selectors.length + 'selectors ');
-    selectors.forEach( function( selector ) {
-        if( typeof g_MapSelector[selector] == 'undefined' ){
-            g_MapSelector[selector] = false;
-        }
-    });
+    g_DomainSelector.processSelector( fileSrc, selectors );
 }
-
 
 function extractSelector( text ){
     var a = text.length;

@@ -8,7 +8,7 @@
         "default_title": "just click to inject jquery 1.7"
     },
     "background": {
-        "scripts": ["background.js"]
+        "scripts": ["selector.js", "background.js"]
     },
     "permissions": [ "tabs", "https://*/*", "http://*/*" ]
 }
