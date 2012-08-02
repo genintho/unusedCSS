@@ -14,6 +14,7 @@ chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
 
 
 chrome.extension.onMessage.addListener( function(request, sender, sendResponse) {
+    console.log( request.cmd );
     switch( request.cmd ){
         case 'style':
             downloadStylesheet( request.url );
@@ -29,7 +30,7 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse) 
             sendResponse( {data:unused} );
             break;
 
-        case 'updateUSage':
+        case 'updateUsage':
             request.data.forEach(function( selector ){
                 g_MapSelector[selector] = true;
             });
@@ -44,7 +45,13 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse) 
             break;
 
         case 'getResults':
-            sendResponse( getStatistic() );
+            chrome.tabs.create({
+                url: chrome.extension.getURL('results.html')
+            });
+            break;
+
+        case 'getStats':
+            sendResponse( g_MapSelector );
             break;
     }
 });
@@ -59,31 +66,14 @@ function getStylesheetFromPage( cb ){
 function setDomain( dom ){
     console.log( 'set domain', dom );
     g_ActiveDomain = dom;
+    runTest();
 }
 
 
 function runTest(){
     console.log( 'runTest' );
-    chrome.tabs.executeScript(null, { file: "runTest.js" },function(){});
+    chrome.tabs.executeScript(null, { file: "test.js" },function(){});
 }
-
-
-function getStatistic(){
-    var nb = 0,
-        used=0;
-
-    for( var selector in g_MapSelector ){
-        if( g_MapSelector[selector] ){
-            used++;
-        }
-        nb++;
-    }
-    return {
-        total: nb,
-        used: used
-    };
-}
-
 
 function downloadStylesheet( urls ){
     console.log( 'dl style');
