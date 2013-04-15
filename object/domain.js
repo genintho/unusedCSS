@@ -10,11 +10,22 @@ var mDomain = (function(){
     var _isActive = false;
     var _stylesheetMap = {};
 
+    /**
+     * Clear the current state
+     *
+     * @private
+     */
+    function  _reset(){
+        _selectorMap = {};
+        _stylesheetMap = {};
+    }
+
     return {
         /**
+         * Add an aray of selector to the domain
          *
-         * @param fileSrc
-         * @param arrSelector
+         * @param {String}  fileSrc     Where the selector are coming form
+         * @param {ArraY}   arrSelector List of selector to add
          */
         addSelectors: function( fileSrc, arrSelector ){
             console.log( 'Add ' + arrSelector.length + ' selectors from ',fileSrc);
@@ -30,19 +41,39 @@ var mDomain = (function(){
             });
             console.log( fileSrc, 'contained ', arrSelector.length, ' with ', arrSelector.length-ct, 'duplicate' );
         },
+
+        /**
+         * Get the domain name that we are working on
+         *
+         * @returns {string}
+         */
         getName: function(){
             return _isActive;
         },
+
+        /**
+         * Do we have an active domain?
+         *
+         * @returns {boolean}
+         */
         isActive: function(){
             return _isActive === false ? false : true;
         },
-        reset: function(){
-            _selectorMap = {};
-            _stylesheetMap = {};
-        },
+
+        /**
+         * Return the map of selector
+         *
+         * @returns {{}}
+         */
         getMap: function(){
             return _selectorMap;
         },
+
+        /**
+         * Return the list of unused selector
+         *
+         * @returns {Array}
+         */
         getUnUsed: function(){
             var unused = [];
             for( var i in _selectorMap ){
@@ -53,11 +84,20 @@ var mDomain = (function(){
             return unused;
         },
 
+        /**
+         * Set the active domain
+         * @param {String} domain
+         */
         set: function( domain ){
             _isActive = domain;
-            this.reset();
+            _reset();
         },
 
+        /**
+         * Update the usage of the provided selector
+         *
+         * @param {Array} arrSelector
+         */
         updateUsage: function( arrSelector ){
             arrSelector.forEach(function( selector ){
                 _selectorMap[selector].setUsed();
