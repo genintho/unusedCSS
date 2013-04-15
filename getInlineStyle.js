@@ -2,10 +2,11 @@
 
 var final = [];
 var styleTAGs = document.getElementsByTagName( 'style' );
+styleTAGs = Array.prototype.slice.call( styleTAGs );// nodelist hack to get foreach
 
-for( var i = 0, l=styleTAGs.length; i<l; i++ ){
-    final.push( styleTAGs[i].innerHTML );
-}
+styleTAGs.forEach( function( node ){
+    final.push( node.innerHTML );
+});
 
 chrome.extension.sendMessage({
     cmd: "returnInlineStyle",
