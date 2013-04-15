@@ -6,10 +6,33 @@
  * It store the list of selector we have found and there state
  */
 var mDomain = (function(){
-    var _selectorMap = {};
+    /**
+     * Name of the active domain, false if none
+     *
+     * @type {boolean|string}
+     *
+     * @private
+     */
     var _isActive = false;
+
+    /**
+     * A map of the CSS selector. The key is the selector itseld
+     * @type {{}}
+     * @private
+     */
+    var _selectorMap = {};
+
+    /**
+     * A map of the stylesheet url that we have found on the domain
+     *
+     * @type {{}}
+     * @private
+     */
     var _stylesheetMap = {};
 
+    //------------------------------------------------------------------------------------------------------------------
+    // PRIVATE METHOD
+    //------------------------------------------------------------------------------------------------------------------
     /**
      * Clear the current state
      *
@@ -20,6 +43,9 @@ var mDomain = (function(){
         _stylesheetMap = {};
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+    // PUBLIC METHOD
+    //------------------------------------------------------------------------------------------------------------------
     return {
         /**
          * Add an aray of selector to the domain
