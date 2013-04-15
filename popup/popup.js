@@ -30,6 +30,6 @@ document.getElementById( 'test' ).addEventListener( 'click', function(){
 
 document.getElementById( 'getResults' ).addEventListener( 'click', function(){
     chrome.extension.sendMessage({
-        cmd: "getResults"
+        cmd: "openResultsPage"
     });
 });

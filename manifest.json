@@ -4,11 +4,19 @@
     "manifest_version": 2,
     "description": "Find unused CSS Selector from your Web site/Web application just by using it",
     "browser_action": {
-        "default_popup": "popup.html",
+        "default_popup": "popup/popup.html",
         "default_title": "Reduce your CSS"
     },
     "background": {
-        "scripts": ["selector.js", "background.js"]
+        "scripts": [
+            "object/selector.js",
+            "object/domain.js",
+            "background.js"
+        ]
     },
-    "permissions": [ "tabs", "https://*/*", "http://*/*" ]
+    "permissions": [
+        "tabs",
+        "https://*/*",
+        "http://*/*"
+    ]
 }

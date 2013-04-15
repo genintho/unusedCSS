@@ -2,53 +2,10 @@
 var g_ActiveDomain = false;
 var g_StyleSheetURLs = [];
 
-var g_DomainSelector = (function(){
-    var map = {};
 
-    return {
-        /**
-         *
-         * @param fileSrc
-         * @param arrSelector
-         */
-        addSelectors: function( fileSrc, arrSelector ){
-            console.log( 'Add ' + arrSelector.length + ' selectors from ',fileSrc);
-            var ct = 0;
-            arrSelector.forEach( function( selector ) {
-                if( typeof map[selector] == 'undefined' ){
-                    ct++;
-                    map[selector] = new Selector( selector, fileSrc );
-                }
-                else{
-                    map[selector].addDuplicate( fileSrc );
-                }
-            });
-            console.log( fileSrc, 'contained ', arrSelector.length, ' with ', arrSelector.length-ct, 'duplicate' );
-        },
-        reset: function(){
-            map = {};
-        },
-        getMap: function(){
-            return map;
-        },
-        getUnUsed: function(){
-            var unused = [];
-            for( var i in map ){
-                if( !map[i].isUsed ){
-                    unused.push( i );
-                }
-            }
-            return unused;
-        },
-        updateUsage: function( arrSelector ){
-            arrSelector.forEach(function( selector ){
-                map[selector].setUsed();
-            });
-        }
-    };
-})();
-
-
+// Add a listener on tab update
+// when we naviguate on the domain we want to get again the list of script, inline, external, etc
+// kind of useless for single page app
 chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
     if( g_ActiveDomain !== false && tab.url ){
         if( tab.url.indexOf( g_ActiveDomain ) !== -1 ){
@@ -57,7 +14,7 @@ chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
     }
 });
 
-
+// our command center
 chrome.extension.onMessage.addListener( function(request, sender, sendResponse) {
     console.log( 'Background receive command', request.cmd );
     switch( request.cmd ){
@@ -70,12 +27,12 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse) 
             break;
 
         case 'getUnusedSelector':
-            sendResponse({ selectors: g_DomainSelector.getUnUsed() });
+            sendResponse({ selectors: mDomain.getUnUsed() });
             break;
             break;
 
         case 'updateUsage':
-            g_DomainSelector.updateUsage( request.selectors );
+            mDomain.updateUsage( request.selectors );
             break;
 
         case 'runTest':
@@ -86,21 +43,30 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse) 
             setDomain( request.domain );
             break;
 
-        case 'getResults':
+        case 'openResultsPage':
             chrome.tabs.create({
-                url: chrome.extension.getURL('results.html')
+                url: chrome.extension.getURL('results/results.html')
             });
             break;
 
         case 'getStats':
-            sendResponse( g_DomainSelector.getMap() );
+            sendResponse( mDomain.getMap() );
             break;
     }
 });
 
+//======================================================================================================================
+//======================================================================================================================
+// BACKGROUND FUNCTIONS
+//======================================================================================================================
+//======================================================================================================================
 
+/**
+ * Get all the styling of the page
+ * @param {Function} cb Callback to run when the style have been found
+ */
 function getStylesheetFromPage( cb ){
-    console.log( 'Get stylesheet from the page' );
+    console.log( 'Get style from the page' );
     chrome.tabs.executeScript(null, { file: "contentScript/getStyleSheetURL.js" }, cb);
     chrome.tabs.executeScript(null, { file: "contentScript/getInlineStyle.js" }, cb);
 }
@@ -109,7 +75,7 @@ function getStylesheetFromPage( cb ){
 function setDomain( dom ){
     console.log( 'Set domain', dom );
     g_ActiveDomain = dom;
-    g_DomainSelector.reset();
+    mDomain.reset();
     chrome.tabs.reload();
 }
 
@@ -171,7 +137,7 @@ function downloadStylesheet( urls ){
 function postProcessStyleSheet( fileSrc, text ){
     console.log( 'Process stylesheet from ', fileSrc, 'length ', text.length );
     var selectors = extractSelector( text );
-    g_DomainSelector.addSelectors( fileSrc, selectors );
+    mDomain.addSelectors( fileSrc, selectors );
 }
 
 /**
