@@ -1,11 +1,11 @@
 {
-    "name": "xtUnusedCSS",
-    "version": "0.2",
+    "name": "unusedCSS",
+    "version": "0.3",
     "manifest_version": 2,
-    "description": "Find unused CSS Selector from your Web site/Web application",
+    "description": "Find unused CSS Selector from your Web site/Web application just by using it",
     "browser_action": {
         "default_popup": "popup.html",
-        "default_title": "just click to inject jquery 1.7"
+        "default_title": "Reduce your CSS"
     },
     "background": {
         "scripts": ["selector.js", "background.js"]

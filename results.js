@@ -13,7 +13,7 @@ chrome.extension.sendMessage({
             duplicate++;
         }
     }
-    $("#res" ).html(
+    document.getElementById( "res" ).innerHTML =
         '<table>' +
             '<tbody>' +
                 '<tr><td>Number</td><td>'+ nb +'</td></tr>' +
@@ -22,7 +22,7 @@ chrome.extension.sendMessage({
                 '<tr><td>Duplicate</td><td>'+ duplicate +'</td></tr>' +
             '</tbody>' +
         '</table>'
-    );
+    ;
 });
 
 
@@ -36,9 +36,9 @@ document.getElementById('show' ).addEventListener('click',function(){
         else{
             html += 'red';
         }
-        html += "'><td>"+ elem +"</td><td>"+ g_results[elem].isUsed +"</td></tr>"
+        html += "'><td>"+ elem +"</td><td>"+ g_results[elem].isUsed +"</td><td>"+ g_results[elem].src +"</td></tr>"
     }
-    $("#table" ).html( html );
+    document.getElementById( "table" ).innerHTML = html;
 });
 
 

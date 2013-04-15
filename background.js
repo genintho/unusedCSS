@@ -2,14 +2,12 @@
 var g_ActiveDomain = false;
 var g_StyleSheetURLs = [];
 
-var g_MapSelector = {};
-
 var g_DomainSelector = (function(){
     var map = {};
 
     return {
         processSelector: function( fileSrc, arrSelector ){
-            console.log( 'Found '+arrSelector.length + ' selectors ');
+            console.log( 'Found ' + arrSelector.length + ' selectors ');
             arrSelector.forEach( function( selector ) {
                 if( typeof map[selector] == 'undefined' ){
                     map[selector] = new Selector( selector, fileSrc );
@@ -40,7 +38,6 @@ var g_DomainSelector = (function(){
             });
         }
     };
-
 })();
 
 
@@ -54,7 +51,7 @@ chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
 
 
 chrome.extension.onMessage.addListener( function(request, sender, sendResponse) {
-    console.log( request.cmd );
+    console.log( 'Background receive command', request.cmd );
     switch( request.cmd ){
         case 'style':
             downloadStylesheet( request.url );
@@ -91,13 +88,13 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse) 
 
 
 function getStylesheetFromPage( cb ){
-    console.log( 'get style' );
+    console.log( 'Get stylesheet from the page' );
     chrome.tabs.executeScript(null, { file: "getStyleSheet.js" }, cb);
 }
 
 
 function setDomain( dom ){
-    console.log( 'set domain', dom );
+    console.log( 'Set domain', dom );
     g_ActiveDomain = dom;
     chrome.tabs.reload();
 }
@@ -110,8 +107,15 @@ function runTest(){
 
 
 function downloadStylesheet( urls ){
-    console.log( 'dl style', urls);
+    console.log( 'Dl stylesheets' );
     urls.forEach( function( url ){
+
+        // already fetched
+        if( g_StyleSheetURLs.indexOf(url) !== -1 ){
+            console.log( 'Stylesheets', url, ' already downloaded' );
+            return;
+        }
+
         var ajax = new XMLHttpRequest();
         ajax.onreadystatechange = function(){
             if( ajax.readyState == 4 && ajax.status == 200 ){
@@ -125,11 +129,8 @@ function downloadStylesheet( urls ){
         if( url.substr(0, dataURl.length) == dataURl ){
             return;
         }
-        // already fetched
-        if( g_StyleSheetURLs.indexOf(url) !== -1 ){
-            return;
-        }
-        console.log( 'dl style ', url);
+
+        console.log( 'DL stylesheet ', url);
         ajax.open( 'GET', url, false);
         ajax.send( null );
         g_StyleSheetURLs.push( url );
@@ -137,21 +138,39 @@ function downloadStylesheet( urls ){
 }
 
 function postProcessStyleSheet( fileSrc, text ){
-    console.log( 'process stylesheet' );
+    console.log( 'Process stylesheet from ', fileSrc, 'length ', text.length );
     var selectors = extractSelector( text );
     g_DomainSelector.processSelector( fileSrc, selectors );
 }
 
 function extractSelector( text ){
-    var a = text.length;
+    var final = [],
+        a = null;
+
     // empty content of curly bracket
+    text = text.replace( /}/g, "}@#@" );
+
     text = text.replace( /{[\s\S]+?}/mg , "");
     // remove comments
     text = text.replace( /\/\*[\s\S]+?\*\//mg , "");
-    // return an array of selectors
-    return text.split( "\n" );
-}
 
+    // now for selector, remove empty and explode on 'c'
+    a = text.split( "@#@" );
+
+    a.forEach(function( e ){
+        if( !e.length ){
+            return;
+        }
+        e.split( ',' ).forEach(function( e ){
+            if( e.length ){
+                final.push( e );
+            }
+        });
+    });
+
+    // return an array of selectors
+    return final;
+}
 
 
 
