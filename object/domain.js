@@ -6,7 +6,9 @@
  * It store the list of selector we have found and there state
  */
 var mDomain = (function(){
-    var map = {};
+    var _selectorMap = {};
+    var _isActive = false;
+    var _stylesheetMap = {};
 
     return {
         /**
@@ -18,34 +20,47 @@ var mDomain = (function(){
             console.log( 'Add ' + arrSelector.length + ' selectors from ',fileSrc);
             var ct = 0;
             arrSelector.forEach( function( selector ) {
-                if( typeof map[selector] == 'undefined' ){
+                if( typeof _selectorMap[selector] == 'undefined' ){
                     ct++;
-                    map[selector] = new Selector( selector, fileSrc );
+                    _selectorMap[selector] = new Selector( selector, fileSrc );
                 }
                 else{
-                    map[selector].addDuplicate( fileSrc );
+                    _selectorMap[selector].addDuplicate( fileSrc );
                 }
             });
             console.log( fileSrc, 'contained ', arrSelector.length, ' with ', arrSelector.length-ct, 'duplicate' );
         },
+        getName: function(){
+            return _isActive;
+        },
+        isActive: function(){
+            return _isActive === false ? false : true;
+        },
         reset: function(){
-            map = {};
+            _selectorMap = {};
+            _stylesheetMap = {};
         },
         getMap: function(){
-            return map;
+            return _selectorMap;
         },
         getUnUsed: function(){
             var unused = [];
-            for( var i in map ){
-                if( !map[i].isUsed ){
+            for( var i in _selectorMap ){
+                if( !_selectorMap[i].isUsed ){
                     unused.push( i );
                 }
             }
             return unused;
         },
+
+        set: function( domain ){
+            _isActive = domain;
+            this.reset();
+        },
+
         updateUsage: function( arrSelector ){
             arrSelector.forEach(function( selector ){
-                map[selector].setUsed();
+                _selectorMap[selector].setUsed();
             });
         }
     };

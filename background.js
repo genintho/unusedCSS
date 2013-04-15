@@ -1,5 +1,4 @@
 
-var g_ActiveDomain = false;
 var g_StyleSheetURLs = [];
 
 
@@ -7,8 +6,8 @@ var g_StyleSheetURLs = [];
 // when we naviguate on the domain we want to get again the list of script, inline, external, etc
 // kind of useless for single page app
 chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
-    if( g_ActiveDomain !== false && tab.url ){
-        if( tab.url.indexOf( g_ActiveDomain ) !== -1 ){
+    if( mDomain.isActive() !== false && tab.url ){
+        if( tab.url.indexOf( mDomain.getName() ) !== -1 ){
             getStylesheetFromPage( runTest );
         }
     }
@@ -74,8 +73,7 @@ function getStylesheetFromPage( cb ){
 
 function setDomain( dom ){
     console.log( 'Set domain', dom );
-    g_ActiveDomain = dom;
-    mDomain.reset();
+    mDomain.set( dom );
     chrome.tabs.reload();
 }
 
