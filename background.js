@@ -1,22 +1,23 @@
 
 var g_StyleSheetURLs = [];
-
+//var tabsID={};
 
 // Add a listener on tab update
 // when we naviguate on the domain we want to get again the list of script, inline, external, etc
 // kind of useless for single page app
 chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
-    if( mDomain.isActive() !== false && tab.url ){
-        chrome.browserAction.setBadgeText({
-            text: 'ON',
-            tabId: tab.id
-        });
+
+    // the domain is not active and the tab have an url
+    if( mDomain.isActive() && tab.url ){
+        // the domain of the tab url is matching the one we observe
         if( tab.url.indexOf( mDomain.getName() ) !== -1 ){
+            tabsID[tab.id] = true;
             getStylesheetFromPage( runTest );
+            chrome.browserAction.setBadgeText({
+                text: 'ON',
+                tabId: tab.id
+            });
         }
-    }
-    else{
-//        chrome.pageAction.hide( tab.id );
     }
 });
 
@@ -58,6 +59,10 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse) 
         case 'getStats':
             sendResponse( mDomain.getMap() );
             break;
+
+        case "stop":
+            stop();
+            break;
     }
 });
 
@@ -81,10 +86,21 @@ function getStylesheetFromPage( cb ){
 function setDomain( dom ){
     console.log( 'Set domain', dom );
     mDomain.set( dom );
+    tabsID = {};
     chrome.tabs.reload();
 }
 
-
+function stop(){
+    console.log( 'stop running' );
+    for( var tabID in tabsID ){
+        chrome.browserAction.setBadgeText({
+            text: '',
+            tabId: parseInt( tabID, 10 )
+        });
+    }
+    tabsID = {};
+    mDomain.stop();
+}
 function runTest(){
     console.log( 'runTest' );
     chrome.tabs.executeScript(null, { file: "contentScript/testSelector.js" },function(){});

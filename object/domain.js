@@ -120,6 +120,14 @@ var mDomain = (function(){
         },
 
         /**
+         * Stop running
+         */
+        stop: function(){
+            _isActive = false;
+            _reset();
+        },
+
+        /**
          * Update the usage of the provided selector
          *
          * @param {Array} arrSelector
