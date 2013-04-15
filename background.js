@@ -7,9 +7,16 @@ var g_StyleSheetURLs = [];
 // kind of useless for single page app
 chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
     if( mDomain.isActive() !== false && tab.url ){
+        chrome.browserAction.setBadgeText({
+            text: 'ON',
+            tabId: tab.id
+        });
         if( tab.url.indexOf( mDomain.getName() ) !== -1 ){
             getStylesheetFromPage( runTest );
         }
+    }
+    else{
+//        chrome.pageAction.hide( tab.id );
     }
 });
 
@@ -112,7 +119,6 @@ function downloadStylesheet( urls ){
             }
         }
 
-
         // dont fetch that!
         var dataURl = "data:text/css";
         if( url.substr(0, dataURl.length) == dataURl ){
@@ -127,7 +133,7 @@ function downloadStylesheet( urls ){
 }
 
 /**
- * Handle a blobl of css selector
+ * Handle a blob of css selector
  *
  * @param {string} fileSrc  Where this blob is coming from
  * @param {stirng} text     The css blob
