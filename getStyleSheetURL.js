@@ -11,6 +11,6 @@ links.forEach( function( link ){
 });
 
 chrome.extension.sendMessage({
-    cmd: "style",
+    cmd: "returnStylesheetURL",
     url: stylesheetURL
 });

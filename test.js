@@ -1,20 +1,22 @@
-
-
+// get all the unused selector and test the page to see if we can find some of them used in
     chrome.extension.sendMessage({
         cmd: "getUnusedSelector"
-    },function( rep ){
+    },function( response ){
         var used = [];
-        rep.data.forEach( function( selector ){
+        response.selectors.forEach( function( selector ){
             try{// try catch for the weirdness
-                var e = document.querySelectorAll( selector );
-                if( e.length ){
+                var nodeList = document.querySelectorAll( selector );
+                if( nodeList.length ){
                     used.push( selector );
                 }
-            }catch( e ){}
+            }
+            catch( e ){
+
+            }
         });
         chrome.extension.sendMessage({
             cmd: "updateUsage",
-            data: used
+            selectors: used
         });
     });
 

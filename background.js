@@ -6,16 +6,24 @@ var g_DomainSelector = (function(){
     var map = {};
 
     return {
-        processSelector: function( fileSrc, arrSelector ){
-            console.log( 'Found ' + arrSelector.length + ' selectors ');
+        /**
+         *
+         * @param fileSrc
+         * @param arrSelector
+         */
+        addSelectors: function( fileSrc, arrSelector ){
+            console.log( 'Add ' + arrSelector.length + ' selectors from ',fileSrc);
+            var ct = 0;
             arrSelector.forEach( function( selector ) {
                 if( typeof map[selector] == 'undefined' ){
+                    ct++;
                     map[selector] = new Selector( selector, fileSrc );
                 }
                 else{
                     map[selector].addDuplicate( fileSrc );
                 }
             });
+            console.log( fileSrc, 'contained ', arrSelector.length, ' with ', arrSelector.length-ct, 'duplicate' );
         },
         reset: function(){
             map = {};
@@ -53,17 +61,21 @@ chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
 chrome.extension.onMessage.addListener( function(request, sender, sendResponse) {
     console.log( 'Background receive command', request.cmd );
     switch( request.cmd ){
-        case 'style':
+        case 'returnStylesheetURL':
             downloadStylesheet( request.url );
             break;
 
+        case 'returnInlineStyle':
+            processInlineStyles( request.styles );
+            break;
+
         case 'getUnusedSelector':
-            sendResponse({ data:g_DomainSelector.getUnUsed() });
+            sendResponse({ selectors: g_DomainSelector.getUnUsed() });
             break;
             break;
 
         case 'updateUsage':
-            g_DomainSelector.updateUsage( request.data );
+            g_DomainSelector.updateUsage( request.selectors );
             break;
 
         case 'runTest':
@@ -89,13 +101,15 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse) 
 
 function getStylesheetFromPage( cb ){
     console.log( 'Get stylesheet from the page' );
-    chrome.tabs.executeScript(null, { file: "getStyleSheet.js" }, cb);
+    chrome.tabs.executeScript(null, { file: "getStyleSheetURL.js" }, cb);
+    chrome.tabs.executeScript(null, { file: "getInlineStyle.js" }, cb);
 }
 
 
 function setDomain( dom ){
     console.log( 'Set domain', dom );
     g_ActiveDomain = dom;
+    g_DomainSelector.reset();
     chrome.tabs.reload();
 }
 
@@ -105,9 +119,20 @@ function runTest(){
     chrome.tabs.executeScript(null, { file: "test.js" },function(){});
 }
 
+function processInlineStyles( arrText ){
+    console.log('Found ', arrText.length, 'inline style');
+    arrText.forEach( function( e ){
+        postProcessStyleSheet( 'inline', e );
+    });
+}
 
+/**
+ * Download stylesheets
+ *
+ * @param {Array} urls
+ */
 function downloadStylesheet( urls ){
-    console.log( 'Dl stylesheets' );
+    console.log( 'Found ', urls.length, 'stylesheet to download' );
     urls.forEach( function( url ){
 
         // already fetched
@@ -137,39 +162,55 @@ function downloadStylesheet( urls ){
     });
 }
 
+/**
+ * Handle a blobl of css selector
+ *
+ * @param {string} fileSrc  Where this blob is coming from
+ * @param {stirng} text     The css blob
+ */
 function postProcessStyleSheet( fileSrc, text ){
     console.log( 'Process stylesheet from ', fileSrc, 'length ', text.length );
     var selectors = extractSelector( text );
-    g_DomainSelector.processSelector( fileSrc, selectors );
+    g_DomainSelector.addSelectors( fileSrc, selectors );
 }
 
+/**
+ * Extract the selector from a string
+ *
+ * @TODO ignore the :before, :hover, ...
+ *
+ * @param {String} text
+ * @returns {Array}
+ */
 function extractSelector( text ){
-    var final = [],
-        a = null;
+    var foundSelectors = [],
+        selectorGroup = [];
 
-    // empty content of curly bracket
+    // replace } with a macro, that we are going to split on
     text = text.replace( /}/g, "}@#@" );
 
+    // empty content of curly bracket
     text = text.replace( /{[\s\S]+?}/mg , "");
+
     // remove comments
     text = text.replace( /\/\*[\s\S]+?\*\//mg , "");
 
     // now for selector, remove empty and explode on 'c'
-    a = text.split( "@#@" );
+    selectorGroup = text.split( "@#@" );
 
-    a.forEach(function( e ){
-        if( !e.length ){
+    selectorGroup.forEach(function( selectors ){
+        if( !selectors.length ){
             return;
         }
-        e.split( ',' ).forEach(function( e ){
-            if( e.length ){
-                final.push( e );
+        selectors.split( ',' ).forEach(function( selector ){
+            if( selector.length ){
+                foundSelectors.push( selector );
             }
         });
     });
 
     // return an array of selectors
-    return final;
+    return foundSelectors;
 }
 
 
