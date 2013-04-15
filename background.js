@@ -101,8 +101,8 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse) 
 
 function getStylesheetFromPage( cb ){
     console.log( 'Get stylesheet from the page' );
-    chrome.tabs.executeScript(null, { file: "getStyleSheetURL.js" }, cb);
-    chrome.tabs.executeScript(null, { file: "getInlineStyle.js" }, cb);
+    chrome.tabs.executeScript(null, { file: "contentScript/getStyleSheetURL.js" }, cb);
+    chrome.tabs.executeScript(null, { file: "contentScript/getInlineStyle.js" }, cb);
 }
 
 
@@ -116,7 +116,7 @@ function setDomain( dom ){
 
 function runTest(){
     console.log( 'runTest' );
-    chrome.tabs.executeScript(null, { file: "test.js" },function(){});
+    chrome.tabs.executeScript(null, { file: "contentScript/testSelector.js" },function(){});
 }
 
 function processInlineStyles( arrText ){
