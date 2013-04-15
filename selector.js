@@ -2,7 +2,6 @@
 
 function Selector( str, fileSrc ){
     var _duplicate = false,
-        _name = str,
         _src = fileSrc;
 
     return {
@@ -12,6 +11,9 @@ function Selector( str, fileSrc ){
         isDuplicate: false,
 
         addDuplicate: function( fileSrc ){
+            if( fileSrc == 'inline' ){
+                return;
+            }
             if( _duplicate === false ){
                 _duplicate = [ _src ];
                 this.isDuplicate = true;

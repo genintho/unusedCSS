@@ -13,7 +13,7 @@ chrome.extension.sendMessage({
             duplicate++;
         }
     }
-    document.getElementById( "res" ).innerHTML =
+    document.getElementById( "result" ).innerHTML =
         '<table>' +
             '<tbody>' +
                 '<tr><td>Number</td><td>'+ nb +'</td></tr>' +
@@ -25,22 +25,32 @@ chrome.extension.sendMessage({
     ;
 });
 
-
-document.getElementById('show' ).addEventListener('click',function(){
-    var html = "";
-    for( var elem in g_results ){
-        html += "<tr class='";
-        if( g_results[elem].isUsed ){
-            html += 'green';
-        }
-        else{
-            html += 'red';
-        }
-        html += "'><td>"+ elem +"</td><td>"+ g_results[elem].isUsed +"</td><td>"+ g_results[elem].src +"</td></tr>"
-    }
-    document.getElementById( "table" ).innerHTML = html;
+document.getElementById( "show_unused" ).addEventListener( "click", function(){
+    displayDetails( "unused" );
 });
 
+document.getElementById('show_all' ).addEventListener( "click", function(){
+    displayDetails( "all" );
+});
+
+
+function displayDetails( mode ){
+    var html = "<tr><th>Selector</th><th>Used</th><th>Duplicate</th><th>Source</th></tr>";
+    for( var selectorID in g_results ){
+        var selector = g_results[ selectorID ];
+
+        if( mode == "unused" && selector.isUsed ){
+            continue;
+        }
+        html += "<tr class=" + (selector.isUsed ? 'green' : 'red' ) + ">" +
+                    "<td>" + selectorID + "</td>" +
+                    "<td>" + selector.isUsed + "</td>" +
+                    "<td>" + selector.isDuplicate + "</td>" +
+                    "<td>"+ selector.src +"</td>" +
+            "</tr>";
+    }
+    document.getElementById( "table" ).innerHTML = html;
+}
 
 
 
