@@ -189,6 +189,7 @@ function extractSelector( text ){
             return;
         }
         selectors.split( ',' ).forEach(function( selector ){
+            selector = selector.trim();
             if( selector.length ){
                 foundSelectors.push( selector );
             }
