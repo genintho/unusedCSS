@@ -29,6 +29,10 @@ document.getElementById( "show_unused" ).addEventListener( "click", function(){
     displayDetails( "unused" );
 });
 
+document.getElementById( "show_duplicate" ).addEventListener( "click", function(){
+    displayDetails( "duplicate" );
+});
+
 document.getElementById('show_all' ).addEventListener( "click", function(){
     displayDetails( "all" );
 });
@@ -42,6 +46,10 @@ function displayDetails( mode ){
         if( mode == "unused" && selector.isUsed ){
             continue;
         }
+        if( mode == "duplicate" && !selector.isDuplicate){
+            continue;
+        }
+
         html += "<tr class=" + (selector.isUsed ? 'green' : 'red' ) + ">" +
                     "<td>" + selectorID + "</td>" +
                     "<td>" + selector.isUsed + "</td>" +
