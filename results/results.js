@@ -54,7 +54,7 @@ function displayDetails( mode ){
                     "<td>" + selectorID + "</td>" +
                     "<td>" + selector.isUsed + "</td>" +
                     "<td>" + selector.isDuplicate + "</td>" +
-                    "<td>"+ selector.src +"</td>" +
+                    "<td><a href="+ selector.src +">"+ selector.src +"</a></td>" +
             "</tr>";
     }
     document.getElementById( "table" ).innerHTML = html;
