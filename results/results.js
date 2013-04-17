@@ -40,8 +40,13 @@ document.getElementById('show_all' ).addEventListener( "click", function(){
 
 function displayDetails( mode ){
     var html = "<tr><th>Selector</th><th>Used</th><th>Duplicate</th><th>Source</th></tr>";
+    var orderedMap = [];
     for( var selectorID in g_results ){
-        var selector = g_results[ selectorID ];
+        orderedMap.push( selectorID );
+    }
+    orderedMap.sort();
+    for(var i= 0, l=orderedMap.length; i<l; i++ ){
+        var selector = g_results[ orderedMap[i] ];
 
         if( mode == "unused" && selector.isUsed ){
             continue;
@@ -51,7 +56,7 @@ function displayDetails( mode ){
         }
 
         html += "<tr class=" + (selector.isUsed ? 'green' : 'red' ) + ">" +
-                    "<td>" + selectorID + "</td>" +
+                    "<td>" + orderedMap[i] + "</td>" +
                     "<td>" + selector.isUsed + "</td>" +
                     "<td>" + selector.isDuplicate + "</td>" +
                     "<td><a href="+ selector.src +">"+ selector.src +"</a></td>" +
