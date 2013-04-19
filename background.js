@@ -1,7 +1,4 @@
 
-var g_StyleSheetURLs = [];
-//var tabsID={};
-
 // Add a listener on tab update
 // when we naviguate on the domain we want to get again the list of script, inline, external, etc
 // kind of useless for single page app
@@ -130,7 +127,7 @@ function downloadStylesheet( urls ){
     urls.forEach( function( url ){
 
         // already fetched
-        if( g_StyleSheetURLs.indexOf(url) !== -1 ){
+        if( mDomain.isURLfound( url ) ){
             console.log( 'Stylesheets', url, ' already downloaded' );
             return;
         }
@@ -151,7 +148,7 @@ function downloadStylesheet( urls ){
         console.log( 'DL stylesheet ', url);
         ajax.open( 'GET', url, false);
         ajax.send( null );
-        g_StyleSheetURLs.push( url );
+        mDomain.addURL( url );
     });
 }
 
