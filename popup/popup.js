@@ -14,29 +14,55 @@ chrome.tabs.getSelected( null, function(tab) {
     document.getElementById( "domain" ).value = protocol + "://" + minusProto ;
 });
 
+var btSetDomain = document.getElementById( "setDomain" );
+var btTest      = document.getElementById( "test" );
+var btResults   = document.getElementById( "getResults" );
+var btStop      = document.getElementById( "stop" );
 
-document.getElementById( "setDomain" ).addEventListener( "click", function(){
+chrome.extension.sendMessage({
+    cmd: "getExtensionStatus"
+}, function( results ){
+    if( results.isActive ){
+        hide( btSetDomain );
+        hide( document.getElementById( 'domain' ) );
+    }
+    else{
+        hide( btTest );
+        hide( btResults );
+        hide( btStop );
+    }
+
+});
+
+
+btSetDomain.addEventListener( "click", function(){
     chrome.extension.sendMessage({
         cmd: "setDomain",
         domain: document.getElementById( "domain" ).value
     });
 });
 
-document.getElementById( "test" ).addEventListener( "click", function(){
+btTest.addEventListener( "click", function(){
     chrome.extension.sendMessage({
         cmd: "runTest"
     });
 });
 
-document.getElementById( "getResults" ).addEventListener( "click", function(){
+btResults.addEventListener( "click", function(){
     chrome.extension.sendMessage({
         cmd: "openResultsPage"
     });
 });
 
-document.getElementById( "stop" ).addEventListener( "click", function(){
+btStop.addEventListener( "click", function(){
     chrome.extension.sendMessage({
         cmd: "stop"
     });
 });
 
+
+function hide( elem ){
+//    elem.style.display = 'none';
+    elem.parentNode.removeChild(elem);
+
+}

@@ -17,7 +17,9 @@
 
     "permissions": [
         "tabs",
+        "notifications",
         "https://*/*",
         "http://*/*"
-    ]
+    ],
+    "homepage_url": "http://thomas-genin.com/unusedcss.html"
 }

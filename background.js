@@ -60,6 +60,13 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse) 
             sendResponse( mDomain.getMap() );
             break;
 
+        case 'getExtensionStatus':
+            sendResponse({
+                isActive: mDomain.isActive(),
+                domainName: mDomain.getName()
+            });
+            break;
+
         case "stop":
             stop();
             break;
