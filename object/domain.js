@@ -67,6 +67,14 @@ var mDomain = (function(){
             });
             console.log( fileSrc, 'contained ', arrSelector.length, ' with ', arrSelector.length-ct, 'duplicate' );
         },
+        /**
+         * Register a style url found for the domain
+         * @param url
+         */
+        addURL: function( url ){
+            _stylesheetMap[url] = true;
+        },
+
 
         /**
          * Get the domain name that we are working on
@@ -84,6 +92,10 @@ var mDomain = (function(){
          */
         isActive: function(){
             return _isActive === false ? false : true;
+        },
+
+        isURLfound: function( url ){
+            return _stylesheetMap[url] === true;
         },
 
         /**
@@ -133,6 +145,7 @@ var mDomain = (function(){
          * @param {Array} arrSelector
          */
         updateUsage: function( arrSelector ){
+            console.log( arrSelector.length, ' additional selector were used' );
             arrSelector.forEach(function( selector ){
                 _selectorMap[selector].setUsed();
             });
