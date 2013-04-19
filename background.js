@@ -1,3 +1,4 @@
+var timerID = null;
 
 // Add a listener on tab update
 // when we naviguate on the domain we want to get again the list of script, inline, external, etc
@@ -9,7 +10,9 @@ chrome.tabs.onUpdated.addListener(function( tabId, changeInfo, tab){
         // the domain of the tab url is matching the one we observe
         if( tab.url.indexOf( mDomain.getName() ) !== -1 ){
             tabsID[tab.id] = true;
-            getStylesheetFromPage( runTest );
+            getStylesheetFromPage( function(){
+                chrome.tabs.executeScript(null, { file: "contentScript/observer.js" },function(){});
+            });
             chrome.browserAction.setBadgeText({
                 text: 'ON',
                 tabId: tab.id
@@ -33,14 +36,16 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse) 
         case 'getUnusedSelector':
             sendResponse({ selectors: mDomain.getUnUsed() });
             break;
-            break;
 
         case 'updateUsage':
             mDomain.updateUsage( request.selectors );
+            if( timerID === null ){
+                timerID = setTimeout( runTest, 5000 );
+            }
             break;
 
         case 'runTest':
-            runTest();
+            runTest( true );
             break;
 
         case 'setDomain':
@@ -96,6 +101,8 @@ function setDomain( dom ){
 
 function stop(){
     console.log( 'stop running' );
+    clearTimeout( timerID );
+    timerID = null;
     for( var tabID in tabsID ){
         chrome.browserAction.setBadgeText({
             text: '',
@@ -107,6 +114,9 @@ function stop(){
 }
 function runTest(){
     console.log( 'runTest' );
+    if( !mDomain.isActive() ){
+        return;
+    }
     chrome.tabs.executeScript(null, { file: "contentScript/testSelector.js" },function(){});
 }
 

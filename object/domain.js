@@ -145,6 +145,7 @@ var mDomain = (function(){
          * @param {Array} arrSelector
          */
         updateUsage: function( arrSelector ){
+            console.log( arrSelector.length, ' additional selector were used' );
             arrSelector.forEach(function( selector ){
                 _selectorMap[selector].setUsed();
             });
