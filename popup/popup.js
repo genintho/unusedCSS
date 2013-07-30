@@ -24,9 +24,11 @@ chrome.extension.sendMessage({
 }, function( results ){
     if( results.isActive ){
         hide( btSetDomain );
-        hide( document.getElementById( 'domain' ) );
+        hide( document.getElementById( 'setDomain_container' ) );
+
     }
     else{
+        hide( document.getElementById( 'active_container' ) );
         hide( btTest );
         hide( btResults );
         hide( btStop );

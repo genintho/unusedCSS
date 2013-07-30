@@ -5,18 +5,38 @@
     <title></title>
     <style type="text/css">
         body{
-            width:200px;
+            width:300px;
+            font-family: helveticaneue;
+        }
+
+        #active_container, #setDomain_container{
+            font-size: 12px;
+        }
+
+        #domain{
+            width: 70%;
         }
     </style>
 </head>
 <body>
     <h3>unusedCSS</h3>
     <div>
-        <input type="text" id="domain">
-        <button id="setDomain">Set Domain</button><br/>
-        <button id="test">Test</button><br/>
-        <button id="getResults">Get Results</button>
-        <button id="stop">Stop</button>
+        <div id="setDomain_container">
+            <p>
+                <i>The extension is OFF. Enter your domain and click set domain to turn it on.</i>
+            </p>
+            <input type="text" id="domain"/>
+            <button id="setDomain">Set Domain</button><br/>
+        </div>
+        <div id="active_container">
+            <p>
+                <i>The extension is ON.</i>
+            </p>
+            <button id="test">Manually Test</button><br/>
+            <button id="getResults">See Results</button><br>
+            <button id="stop">Stop analyzing domain</button>
+        </div>
+
     </div>
     <script type="text/javascript" src="popup.js"></script>
 </body>
