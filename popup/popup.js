@@ -1,3 +1,15 @@
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-8436923-9']);
+_gaq.push(['_trackPageview']);
+
+
+(function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = 'https://ssl.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+
 chrome.tabs.getSelected( null, function(tab) {
     var link = tab.url;
     var protocol = link.substr( 0, link.indexOf( "://" ) );
@@ -38,6 +50,7 @@ chrome.extension.sendMessage({
 
 
 btSetDomain.addEventListener( "click", function(){
+    _gaq.push(['_trackEvent', 'setDomain', 'clicked'] );
     chrome.extension.sendMessage({
         cmd: "setDomain",
         domain: document.getElementById( "domain" ).value
@@ -45,18 +58,21 @@ btSetDomain.addEventListener( "click", function(){
 });
 
 btTest.addEventListener( "click", function(){
+    _gaq.push(['_trackEvent', 'manualTest', 'clicked'] );
     chrome.extension.sendMessage({
         cmd: "runTest"
     });
 });
 
 btResults.addEventListener( "click", function(){
+    _gaq.push(['_trackEvent', 'seeResults', 'clicked'] );
     chrome.extension.sendMessage({
         cmd: "openResultsPage"
     });
 });
 
 btStop.addEventListener( "click", function(){
+    _gaq.push(['_trackEvent', 'stop', 'clicked'] );
     chrome.extension.sendMessage({
         cmd: "stop"
     });
@@ -68,3 +84,4 @@ function hide( elem ){
     elem.parentNode.removeChild(elem);
 
 }
+
